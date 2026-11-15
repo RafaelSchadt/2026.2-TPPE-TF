@@ -1,1 +1,0 @@
-packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html","k":"18"},{"l":"fga0242"},{"l":"fga0242.model"},{"l":"fga0242.service"}];updateSearchResults();
