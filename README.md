@@ -54,10 +54,9 @@ javac -version
 
 ### 4.2. Instalação das Dependências
 
+Baixe as bibliotecas necessárias nos links abaixo:
 
 <div align="center">
-
-Baixe as bibliotecas necessárias nos links abaixo:
 
 | Biblioteca    | Versão  | Download                                                                                                     |
 | ------------- | ------- | ------------------------------------------------------------------------------------------------------------ |
