@@ -1,0 +1,12 @@
+# Dependências externas (não versionar .jar)
+libs/*.jar
+
+# Diretórios de compilação / build
+out/
+target/
+build/
+*.class
+
+# Arquivos de ambiente / temporários
+.DS_Store
+*.log
