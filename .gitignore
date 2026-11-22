@@ -1,5 +1,6 @@
 # Dependências externas (não versionar .jar)
 libs/*.jar
+!libs/.gitkeep
 
 # Diretórios de compilação / build
 out/
