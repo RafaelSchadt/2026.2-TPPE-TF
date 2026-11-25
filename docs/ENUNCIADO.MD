@@ -1,4 +1,4 @@
-# Universidade de Brasília – UnB <br>Faculdade de Ciências e Tecnologias em Engenharia – FCTE <br> Técnicas de Programação para Plataformas Emergentes – FGA0242 <br> Semestre 2026.2 <br> <br> <div align="center">Trabalho Final - Enunciado </div>
+#  <div align="center">Trabalho Final - Enunciado </div>
 
 # 1. O desafio
 
