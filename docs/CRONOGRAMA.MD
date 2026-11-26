@@ -1,6 +1,5 @@
 #  <div align="center"> Cronograma do Projeto </div>
 
-
 ## 1. Datas das Entregas
 
 <div align="center">
@@ -28,17 +27,50 @@
       <td>1</td>
       <td>Fundação</td>
       <td>1.1</td>
-      <td>Fundação</td>
-      <td>Othavio + Ludmila + Amanda + todos</td>
+      <td>Build</td>
+      <td>Othavio</td>
       <td>25/11</td>
       <td>26/11</td>
-      <td><strong>Geral</strong> (todos juntos)</td>
-      <td>Nenhuma: bloqueia as demais</td>
+      <td>-</td>
+      <td>-</td>
     </tr>
     <tr>
       <td>1</td>
       <td>Fundação</td>
       <td>1.2</td>
+      <td>Dublês de Teste</td>
+      <td>Ludmila + Amanda</td>
+      <td>25/11</td>
+      <td>26/11</td>
+      <td>Paralela</td>
+      <td>1.3, 1.4</td>
+    </tr>
+    <tr>
+      <td>1</td>
+      <td>Fundação</td>
+      <td>1.3</td>
+      <td>Testes de Caracterização</td>
+      <td>Todos</td>
+      <td>25/11</td>
+      <td>26/11</td>
+      <td>Paralela</td>
+      <td>1.2, 1.4</td>
+    </tr>
+    <tr>
+      <td>1</td>
+      <td>Fundação</td>
+      <td>1.4</td>
+      <td>Code Smells</td>
+      <td>Todos</td>
+      <td>25/11</td>
+      <td>26/11</td>
+      <td>Paralela</td>
+      <td>1.2, 1.3</td>
+    </tr>
+    <tr>
+      <td>1</td>
+      <td>Fundação</td>
+      <td>1.5</td>
       <td>Refatoração Base</td>
       <td>Othavio + Yan</td>
       <td>26/11</td>
@@ -55,7 +87,7 @@
       <td>26/11</td>
       <td>26/11</td>
       <td>Paralela</td>
-      <td>1.2, 2.2</td>
+      <td>1.5, 2.2</td>
     </tr>
     <tr>
       <td>2</td>
@@ -66,7 +98,7 @@
       <td>26/11</td>
       <td>26/11</td>
       <td>Paralela</td>
-      <td>1.2, 2.1</td>
+      <td>1.5, 2.1</td>
     </tr>
     <tr>
       <td>2</td>
@@ -77,7 +109,7 @@
       <td>26/11</td>
       <td>27/11</td>
       <td>Sequencial (2.1 e 2.2)</td>
-      <td>1.2, 4.1, 5.1</td>
+      <td>1.5, 4.1, 5.1</td>
     </tr>
     <tr>
       <td>3</td>
@@ -212,17 +244,17 @@
   <tbody>
     <tr>
       <td>Othavio</td>
-      <td>1.1, 1.2, 5.2, 6.1</td>
+      <td>1.1, 1.5, 5.2, 6.1</td>
       <td>Build e revisão geral</td>
     </tr>
     <tr>
       <td>Yan</td>
-      <td>1.2, 2.2, 2.3, 6.1</td>
+      <td>1.5, 2.2, 2.3, 6.1</td>
       <td>-</td>
     </tr>
     <tr>
       <td>Ludmila</td>
-      <td>1.1, 2.1, 2.3, 6.1, 6.2</td>
+      <td>1.2, 2.1, 2.3, 6.1, 6.2</td>
       <td>Dublês de mercados falsos/hostis, consolidação do <code>RELATORIO.md</code></td>
     </tr>
     <tr>
@@ -237,7 +269,7 @@
     </tr>
     <tr>
       <td>Amanda</td>
-      <td>1.1, 4.1, 4.3, 6.1, 6.2</td>
+      <td>1.2, 4.1, 4.3, 6.1, 6.2</td>
       <td>Dublês de repositório (em memória e com falha), consolidação do <code>RELATORIO.md</code></td>
     </tr>
     <tr>
@@ -270,17 +302,41 @@
   <tbody>
     <tr>
       <td>1.1</td>
-      <td>Fundação</td>
-      <td>Setup do build (<code>-ea</code>), <code>ContratoApiTest</code>, dublês de teste (mercados falsos/hostis + repositório em memória), testes de caracterização e lista de <em>smells</em></td>
+      <td>Build</td>
+      <td>Setup do build com <code>-ea</code> (enable assertions) e criação do <code>ContratoApiTest</code> (contrato da API que todas as etapas devem respeitar)</td>
       <td>-</td>
-      <td>Fundamental para o restante do projeto. Ludmila: mercados falsos/hostis. Amanda: repositório em memória e repositório que falha</td>
-      <td><strong>Othavio</strong> (build) + <strong>Ludmila</strong> e <strong>Amanda</strong> (dublês elaborados) + todos (caracterização e <em>smells</em>)</td>
+      <td>Base para todo o projeto. Sem o build com <code>-ea</code> e o contrato, as demais etapas não têm como validar nada</td>
+      <td><strong>Othavio</strong></td>
     </tr>
     <tr>
       <td>1.2</td>
+      <td>Dublês de Teste</td>
+      <td>Criação dos dublês de teste: <strong>mercados falsos/hostis</strong> + <strong>repositório em memória</strong> e <strong>repositório que falha</strong></td>
+      <td>1.1</td>
+      <td>Ludmila: mercados falsos/hostis. Amanda: repositório em memória e repositório que falha. Base para testar RN-01 a RN-12 sem depender de H2 real ou mercados externos</td>
+      <td><strong>Ludmila</strong> (mercados falsos/hostis) + <strong>Amanda</strong> (repositório em memória e repositório que falha)</td>
+    </tr>
+    <tr>
+      <td>1.3</td>
+      <td>Testes de Caracterização</td>
+      <td>Testes que capturam o comportamento <strong>atual</strong> do sistema legado antes de qualquer refatoração (devem ficar verdes na 1.5)</td>
+      <td>1.1, 1.2</td>
+      <td>Protegem a refatoração base (1.5); sem eles, não há como garantir que o comportamento original foi preservado</td>
+      <td><strong>Todos</strong></td>
+    </tr>
+    <tr>
+      <td>1.4</td>
+      <td>Code Smells</td>
+      <td>Levantamento e listagem dos <em>code smells</em> do código legado (estado estático, métodos longos, <code>double</code> em vez de <code>BigDecimal</code>, etc.)</td>
+      <td>1.1</td>
+      <td>Serve de roteiro para a refatoração base (1.5) e alimenta o <code>RELATORIO.md</code> (6.2)</td>
+      <td><strong>Todos</strong></td>
+    </tr>
+    <tr>
+      <td>1.5</td>
       <td>Refatoração Base</td>
       <td>Remover estado estático, quebrar métodos longos, migrar <code>double</code> para <code>BigDecimal</code> (com testes de caracterização verdes)</td>
-      <td>1.1</td>
+      <td>1.1, 1.2, 1.3, 1.4</td>
       <td>Deixa o TDD viável para RN-01 a RN-12</td>
       <td><strong>Othavio</strong> + <strong>Yan</strong></td>
     </tr>
@@ -328,7 +384,7 @@
       <td>3.3</td>
       <td>Total e desempate</td>
       <td>RN-05 + RN-06: total por mercado (<code>HALF_EVEN</code> linha a linha + frete) e desempate por menor <code>nome()</code> (<code>compareTo</code>)</td>
-      <td>1.2, 3.2</td>
+      <td>1.5, 3.2</td>
       <td>Deixa RN-07 e RN-08 viáveis</td>
       <td><strong>Davi</strong></td>
     </tr>
