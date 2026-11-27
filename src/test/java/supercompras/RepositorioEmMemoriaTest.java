@@ -3,11 +3,13 @@ package supercompras;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static supercompras.PedidosDeTeste.adulterar;
 import static supercompras.PedidosDeTeste.pedidoCom;
 import static supercompras.PedidosDeTeste.pedidoDe;
 
 import java.math.BigDecimal;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -99,6 +101,21 @@ public class RepositorioEmMemoriaTest {
         repositorio.salvar(pedidoDe("lud"));
 
         repositorio.getSalvos().clear();
+    }
+
+    @Test
+    public void salvarIdRepetidoFalhaComoChavePrimariaESoGuardaOPrimeiro() {
+        RepositorioEmMemoria repositorio = new RepositorioEmMemoria();
+        repositorio.salvar(pedidoDe("lud"));
+
+        try {
+            repositorio.salvar(pedidoDe("lud"));
+            fail("deveria ter rejeitado o id repetido");
+        } catch (PersistenciaException esperada) {
+            assertTrue(esperada.getCause() instanceof SQLException);
+        }
+
+        assertEquals(1, repositorio.quantidadeSalva());
     }
 
     @Test(expected = NullPointerException.class)

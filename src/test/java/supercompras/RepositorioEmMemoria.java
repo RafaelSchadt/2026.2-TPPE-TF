@@ -2,6 +2,7 @@ package supercompras;
 
 import static supercompras.PedidosDeTeste.copiaDe;
 
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -16,6 +17,13 @@ class RepositorioEmMemoria implements PedidoRepositorio {
     @Override
     public synchronized void salvar(Pedido pedido) {
         Objects.requireNonNull(pedido, "pedido");
+        // No banco o id é chave primária.
+        for (Pedido salvo : salvos) {
+            if (Objects.equals(salvo.getId(), pedido.getId())) {
+                throw new PersistenciaException("pedido com id repetido",
+                        new SQLIntegrityConstraintViolationException("chave primária duplicada"));
+            }
+        }
         salvos.add(copiaDe(pedido));
     }
 
