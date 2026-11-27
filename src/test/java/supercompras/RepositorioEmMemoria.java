@@ -1,10 +1,14 @@
 package supercompras;
 
+import static supercompras.PedidosDeTeste.copiaDe;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
+// Guarda cópias dos pedidos, igual ao banco faz. Se guardasse o próprio objeto, um teste
+// passaria mesmo com o sistema alterando o pedido depois de salvo.
 class RepositorioEmMemoria implements PedidoRepositorio {
 
     private final List<Pedido> salvos = new ArrayList<>();
@@ -12,7 +16,7 @@ class RepositorioEmMemoria implements PedidoRepositorio {
     @Override
     public synchronized void salvar(Pedido pedido) {
         Objects.requireNonNull(pedido, "pedido");
-        salvos.add(pedido);
+        salvos.add(copiaDe(pedido));
     }
 
     @Override
@@ -20,14 +24,18 @@ class RepositorioEmMemoria implements PedidoRepositorio {
         List<Pedido> encontrados = new ArrayList<>();
         for (Pedido pedido : salvos) {
             if (Objects.equals(pedido.getCompradorId(), compradorId)) {
-                encontrados.add(pedido);
+                encontrados.add(copiaDe(pedido));
             }
         }
         return List.copyOf(encontrados);
     }
 
     synchronized List<Pedido> getSalvos() {
-        return List.copyOf(salvos);
+        List<Pedido> copias = new ArrayList<>();
+        for (Pedido pedido : salvos) {
+            copias.add(copiaDe(pedido));
+        }
+        return List.copyOf(copias);
     }
 
     synchronized List<String> getCompradoresNaOrdemSalva() {
