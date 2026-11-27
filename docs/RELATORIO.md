@@ -81,8 +81,6 @@ _Em até 10 linhas: antes (o legado) e depois (suas classes e responsabilidades)
 
 _Defesa em excesso também é defeito. Cite pelo menos três lugares onde o grupo decidiu **não** validar ou **não** capturar algo, com a justificativa._
 
-* **`buscarPorComprador` dos dublês de repositório não valida o formato RN-01.** Para um id fora do formato o dublê só devolve lista vazia, o que a RN-11 permite. A validação de verdade é responsabilidade do `PedidoRepositorioJdbc` e é testada lá; repetir a regra no dublê duplicaria código de produção dentro do teste.
-
 ## 6. Decisões difíceis e divergências do grupo
 
 _Pelo menos duas decisões em que houve discordância, as alternativas e o critério usado._
@@ -90,8 +88,6 @@ _Pelo menos duas decisões em que houve discordância, as alternativas e o crit�
 ## 7. Limitações conhecidas
 
 _O que o sistema ainda não protege. Honestidade vale ponto na defesa._
-
-* **`RepositorioEmMemoria` guarda a própria instância do `Pedido`, não uma cópia.** Enquanto o `Pedido` do legado for mutável, se o sistema alterar um pedido depois de salvá-lo o dublê mostra o valor novo, ao contrário de um banco real. A decisão é reavaliar depois que o `Pedido` ficar imutável (refatoração base, etapa 1.5).
 
 ## 8. Quem fez o quê
 
