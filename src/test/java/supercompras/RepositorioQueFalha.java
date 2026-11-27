@@ -11,7 +11,8 @@ import java.util.Set;
 import java.util.function.BiPredicate;
 import java.util.function.Supplier;
 
-// Por padrão falha como o JDBC real: PersistenciaException com SQLException de causa.
+// Por padrão falha como a RN-12 exige: PersistenciaException com SQLException de causa.
+// O JDBC ainda não faz isso: engole a SQLException com printStackTrace.
 class RepositorioQueFalha implements PedidoRepositorio {
 
     static final String MENSAGEM_FALHA = "falha simulada ao salvar pedido";
