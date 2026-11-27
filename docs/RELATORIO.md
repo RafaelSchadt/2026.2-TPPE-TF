@@ -5,14 +5,14 @@
 
 <div align="center">
     
-| Membro | Matrícula | GitHub |
-|:---|:---:|:---|
-| Amanda Cruz Lima | 231027023 | [@mandicrz](https://github.com/mandicrz) |
-| Davi Marques do Egito Coelho | 231030421 | [@daviegito](https://github.com/daviegito) |
-| Ludmila Aysha Oliveira Nune | 231026750 | [@ludmilaaysha](https://github.com/ludmilaaysha) |
-| Othavio Araujo Bolzan | 231039150 | [@bolzanMGB](https://github.com/bolzanMGB) |
-| Rafael Welz Schadt | 231011800 | [@RafaelSchadt](https://github.com/RafaelSchadt) |
-| Rodrigo Ferreira do Amaral | 231011810 | [@rodrigoFAmaral](https://github.com/rodrigoFAmaral) |
+| Membro                              | Matrícula | GitHub                                               |
+| :---------------------------------- | :-------: | :--------------------------------------------------- |
+| Amanda Cruz Lima                    | 231027023 | [@mandicrz](https://github.com/mandicrz)             |
+| Davi Marques do Egito Coelho        | 231030421 | [@daviegito](https://github.com/daviegito)           |
+| Ludmila Aysha Oliveira Nune         | 231026750 | [@ludmilaaysha](https://github.com/ludmilaaysha)     |
+| Othavio Araujo Bolzan               | 231039150 | [@bolzanMGB](https://github.com/bolzanMGB)           |
+| Rafael Welz Schadt                  | 231011800 | [@RafaelSchadt](https://github.com/RafaelSchadt)     |
+| Rodrigo Ferreira do Amaral          | 231011810 | [@rodrigoFAmaral](https://github.com/rodrigoFAmaral) |
 | Yan Matheus Santa Brigida de Aguiar | 231038303 | [@Yanmatheus0812](https://github.com/Yanmatheus0812) |
 
 <div align="center"> Tabela 1 </div>
@@ -27,9 +27,9 @@ _Em até 10 linhas: antes (o legado) e depois (suas classes e responsabilidades)
 
 <div align="center">
 
-| # | Smell encontrado (nome do catálogo) | Onde estava | Refatoração aplicada (nome) | Teste que protegeu | Commit |
-| - | ------------------------------------ | ----------- | ----------------------------- | ------------------ | ------ |
-| 1 |                                      |             |                               |                    |        |
+| #   | Smell encontrado (nome do catálogo) | Onde estava | Refatoração aplicada (nome) | Teste que protegeu | Commit |
+| --- | ----------------------------------- | ----------- | --------------------------- | ------------------ | ------ |
+| 1   |                                     |             |                             |                    |        |
 
 <div align="center"> Tabela 2 </div>
 
@@ -63,15 +63,15 @@ _Em até 10 linhas: antes (o legado) e depois (suas classes e responsabilidades)
 <div align="center">
 
 | Técnica defensiva               | Onde foi aplicada | Problema que evita | Teste que ataca a defesa | Custo / efeito colateral |
-| -------------------------------- | ----------------- | ------------------ | ------------------------ | ------------------------ |
-| Barricada                        |                   |                    |                          |                          |
-| Fail fast / pré-condição      |                   |                    |                          |                          |
-| Asserção                       |                   |                    |                          |                          |
-| Exceção com contexto           |                   |                    |                          |                          |
+| ------------------------------- | ----------------- | ------------------ | ------------------------ | ------------------------ |
+| Barricada                       |                   |                    |                          |                          |
+| Fail fast / pré-condição        |                   |                    |                          |                          |
+| Asserção                        |                   |                    |                          |                          |
+| Exceção com contexto            |                   |                    |                          |                          |
 | Cópia defensiva / imutabilidade |                   |                    |                          |                          |
-| `try-with-resources`           |                   |                    |                          |                          |
-| Consulta parametrizada           |                   |                    |                          |                          |
-| Log seguro                       |                   |                    |                          |                          |
+| `try-with-resources`            |                   |                    |                          |                          |
+| Consulta parametrizada          |                   |                    |                          |                          |
+| Log seguro                      |                   |                    |                          |                          |
 
 <div align="center"> Tabela 4 </div>
 
@@ -95,9 +95,10 @@ _O que o sistema ainda não protege. Honestidade vale ponto na defesa._
 
 | Integrante | Principais contribuições (commits, testes, partes do código) |
 | ---------- | --------------------------------------------------------------- |
-|    [Rafael Schadt](https://github.com/RafaelSchadt)    |  Ciação do repositório. I                                                       |
-|    [Othavio Bolzan](https://github.com/bolzanMGB)        |    Clonagem do repositório template; Criação da readme.       I                                                       |
-|    [Amanda Lima](https://github.com/mandicrz)    |  Dublês de repositório (etapa 1.2): `RepositorioEmMemoria`, `RepositorioQueFalha`, `PedidosDeTeste` e os testes `RepositorioEmMemoriaTest` e `RepositorioQueFalhaTest` |
+| [Rafael Schadt](https://github.com/RafaelSchadt) |  Criação do repositório.                                                       |
+| [Othavio Bolzan](https://github.com/bolzanMGB)   |    Clonagem do repositório template; Criação da readme.                                                       |
+| [Amanda Lima](https://github.com/mandicrz)       |  Dublês de repositório (etapa 1.2): `RepositorioEmMemoria`, `RepositorioQueFalha`, `PedidosDeTeste` e os testes `RepositorioEmMemoriaTest` e `RepositorioQueFalhaTest` |
+| [Ludmila Nune](https://github.com/ludmilaaysha)  |  Dublês de mercado (etapa 1.2): `MercadoFalso` (mercado bem-comportado e configurável) e `MercadoHostil` (injeta falhas) e os testes `MercadoFalsoTest` e `MercadoHostilTest` |
 
 <div align="center"> Tabela 5 </div>
 
