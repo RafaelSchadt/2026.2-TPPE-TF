@@ -73,21 +73,40 @@ public class RepositorioQueFalhaTest {
 
     @Test
     public void lancandoTrocaOTipoDaExcecaoMantendoOAlvo() {
-        IllegalStateException bug = new IllegalStateException("bug no repositório");
-        RepositorioQueFalha repositorio =
-                RepositorioQueFalha.falhandoParaCompradores("lud").lancando(() -> bug);
+        RepositorioQueFalha repositorio = RepositorioQueFalha.falhandoParaCompradores("lud")
+                .lancando(() -> new IllegalStateException("bug no repositório"));
 
         repositorio.salvar(pedidoDe("amanda"));
         try {
             repositorio.salvar(pedidoDe("lud"));
             fail("deveria ter falhado ao salvar o pedido de lud");
         } catch (IllegalStateException lancada) {
-            assertSame(bug, lancada);
+            assertEquals(List.of(lancada), repositorio.getFalhasLancadas());
         }
 
         assertEquals(List.of("amanda", "lud"), repositorio.getTentativas());
         assertEquals(List.of("amanda"), repositorio.getCompradoresSalvos());
-        assertEquals(List.of(bug), repositorio.getFalhasLancadas());
+    }
+
+    // O sistema chamaria primeira.addSuppressed(primeira), que lança IllegalArgumentException,
+    // e o teste da RN-10 culparia o sistema por um erro do dublê.
+    @Test
+    public void lancandoRecusaReusarAMesmaExcecao() {
+        IllegalStateException mesma = new IllegalStateException("bug no repositório");
+        RepositorioQueFalha repositorio = RepositorioQueFalha.falhandoSempre().lancando(() -> mesma);
+
+        try {
+            repositorio.salvar(pedidoDe("amanda"));
+            fail("deveria ter falhado ao salvar o pedido de amanda");
+        } catch (IllegalStateException primeira) {
+            assertSame(mesma, primeira);
+        }
+        try {
+            repositorio.salvar(pedidoDe("lud"));
+            fail("deveria ter recusado a mesma exceção");
+        } catch (AssertionError esperado) {
+            assertTrue(esperado.getMessage().contains("nova"));
+        }
     }
 
     @Test(expected = UnsupportedOperationException.class)

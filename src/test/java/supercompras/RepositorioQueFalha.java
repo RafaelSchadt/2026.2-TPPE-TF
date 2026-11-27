@@ -72,7 +72,14 @@ class RepositorioQueFalha implements PedidoRepositorio {
             return new PersistenciaException(MENSAGEM_FALHA,
                     new SQLException("falha simulada na chamada " + numeroDaChamada));
         }
-        return Objects.requireNonNull(fabricaDeFalha.get(), "a fábrica de falha devolveu null");
+        RuntimeException falha = Objects.requireNonNull(fabricaDeFalha.get(), "a fábrica de falha devolveu null");
+        // AssertionError é Error: atravessa o catch do sistema e derruba o teste com a mensagem certa.
+        for (RuntimeException anterior : falhasLancadas) {
+            if (anterior == falha) {
+                throw new AssertionError("a fábrica de lancando(...) deve criar uma exceção nova a cada chamada");
+            }
+        }
+        return falha;
     }
 
     // só enxerga os pedidos salvos com sucesso
