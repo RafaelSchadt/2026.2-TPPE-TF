@@ -4,10 +4,11 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.*;
 
-/**
- * Compras coletivas de supermercado.
- */
+// Orquestra o recebimento de listas, cotação, compra com fail-over e geração de pedidos.
 public class SistemaCompras {
+    private static final BigDecimal PRECO_MINIMO_VALIDO = new BigDecimal("0.01");
+    private static final int ESCALA_MONETARIA = 2;
+
     public List<Mercado> mercados;
     public PedidoRepositorio repo;
     public Map<String, Map<String, Integer>> listas = new LinkedHashMap<>();
@@ -18,7 +19,6 @@ public class SistemaCompras {
         this.repo = repo;
     }
 
-    // recebe a lista de um comprador
     public void receberLista(String compradorId, Map<String, Integer> itens) {
         System.out.println("Recebendo lista de " + compradorId + " com itens " + itens);
         if (itens == null) {
@@ -27,130 +27,144 @@ public class SistemaCompras {
         listas.put(compradorId, itens);
     }
 
-    // fecha a rodada: cota, compra e divide
     public ResultadoRodada fecharRodada() {
+        Map<String, Integer> loteImutavel = agruparLoteImutavel();
+
+        List<CotacaoAvaliada> cotacoesValidas = avaliarCotacoes(loteImutavel);
+        if (cotacoesValidas.isEmpty()) {
+            throw new SemCotacaoValidaException("Nenhum mercado apresentou cotacao valida para o lote.");
+        }
+
+        CompraConfirmada compra = comprarComFailOver(loteImutavel, cotacoesValidas);
+        CotacaoAvaliada vencedora = compra.cotacao();
+
+        ResultadoRodada r = new ResultadoRodada();
+        r.mercadoVencedor = vencedora.mercado().nome();
+        r.protocolo = compra.protocolo();
+        r.totalLote = vencedora.total();
+
+        gerarESalvarPedidosProvisorios(r, vencedora, compra.protocolo());
+
+        listas.clear();
+        return r;
+    }
+
+    private Map<String, Integer> agruparLoteImutavel() {
         Map<String, Integer> lote = new LinkedHashMap<>();
         for (Map<String, Integer> lista : listas.values()) {
             for (Map.Entry<String, Integer> item : lista.entrySet()) {
                 lote.merge(item.getKey(), item.getValue(), Integer::sum);
             }
         }
-        Map<String, Integer> loteImutavel = Collections.unmodifiableMap(lote);
+        return Collections.unmodifiableMap(lote);
+    }
 
-        // Cada Object[]: [0] = Mercado, [1] = Map<String, BigDecimal> precosFiltrados, [2] = BigDecimal total
-        List<Object[]> cotacoesValidas = new ArrayList<>();
-
+    private List<CotacaoAvaliada> avaliarCotacoes(Map<String, Integer> loteImutavel) {
+        List<CotacaoAvaliada> validas = new ArrayList<>();
         for (Mercado mercado : mercados) {
-            if (mercado == null || mercado.nome() == null || mercado.nome().isBlank()) {
+            CotacaoAvaliada avaliada = avaliarMercado(mercado, loteImutavel);
+            if (avaliada != null) {
+                validas.add(avaliada);
+            }
+        }
+        Collections.sort(validas);
+        return validas;
+    }
+
+    private CotacaoAvaliada avaliarMercado(Mercado mercado, Map<String, Integer> loteImutavel) {
+        if (mercado == null || mercado.nome() == null || mercado.nome().isBlank()) {
+            return null;
+        }
+        try {
+            Map<String, BigDecimal> cotados = mercado.cotarPrecosUnitarios(loteImutavel);
+            Map<String, BigDecimal> precosFiltrados = filtrarECopiarPrecos(loteImutavel, cotados);
+            if (precosFiltrados == null) {
+                return null;
+            }
+
+            BigDecimal freteBruto = mercado.frete(loteImutavel);
+            if (freteBruto == null || freteBruto.compareTo(BigDecimal.ZERO) < 0) {
+                return null;
+            }
+
+            BigDecimal freteArredondado = freteBruto.setScale(ESCALA_MONETARIA, RoundingMode.HALF_EVEN);
+            BigDecimal total = calcularTotalMercado(loteImutavel, precosFiltrados, freteArredondado);
+
+            return new CotacaoAvaliada(
+                    mercado,
+                    Collections.unmodifiableMap(precosFiltrados),
+                    freteArredondado,
+                    total
+            );
+        } catch (MercadoIndisponivelException | RuntimeException e) {
+            return null;
+        }
+    }
+
+    private Map<String, BigDecimal> filtrarECopiarPrecos(
+            Map<String, Integer> lote, Map<String, BigDecimal> cotados) {
+        if (cotados == null) {
+            return null;
+        }
+        Map<String, BigDecimal> copia = new HashMap<>();
+        for (String sku : lote.keySet()) {
+            BigDecimal preco = cotados.get(sku);
+            if (preco == null || preco.compareTo(PRECO_MINIMO_VALIDO) < 0) {
+                return null;
+            }
+            copia.put(sku, preco);
+        }
+        return copia;
+    }
+
+    private BigDecimal calcularTotalMercado(
+            Map<String, Integer> lote,
+            Map<String, BigDecimal> precos,
+            BigDecimal freteArredondado) {
+        BigDecimal total = BigDecimal.ZERO;
+        for (Map.Entry<String, Integer> item : lote.entrySet()) {
+            BigDecimal valorLinha = precos.get(item.getKey())
+                    .multiply(BigDecimal.valueOf(item.getValue()))
+                    .setScale(ESCALA_MONETARIA, RoundingMode.HALF_EVEN);
+            total = total.add(valorLinha);
+        }
+        total = total.add(freteArredondado);
+        assert total.scale() == ESCALA_MONETARIA : "Total do mercado deve ter escala 2";
+        return total;
+    }
+
+    private CompraConfirmada comprarComFailOver(
+            Map<String, Integer> loteImutavel, List<CotacaoAvaliada> cotacoesOrdenadas) {
+        Set<Mercado> jaTentados = Collections.newSetFromMap(new IdentityHashMap<>());
+
+        for (CotacaoAvaliada cotacao : cotacoesOrdenadas) {
+            Mercado mercado = cotacao.mercado();
+            if (!jaTentados.add(mercado)) {
                 continue;
             }
             try {
-                Map<String, BigDecimal> cotados = mercado.cotarPrecosUnitarios(loteImutavel);
-                if (cotados == null) {
-                    continue;
-                }
-
-                // Copia imediata apenas dos SKUs do lote e validacao de preco >= 0.01 (RN-04 / RN-08)
-                Map<String, BigDecimal> precosFiltrados = new HashMap<>();
-                boolean cotacaoCompleta = true;
-                BigDecimal totalMercado = BigDecimal.ZERO;
-
-                for (Map.Entry<String, Integer> item : loteImutavel.entrySet()) {
-                    String sku = item.getKey();
-                    BigDecimal precoUnit = cotados.get(sku);
-                    if (precoUnit == null || precoUnit.compareTo(new BigDecimal("0.01")) < 0) {
-                        cotacaoCompleta = false;
-                        break;
-                    }
-                    precosFiltrados.put(sku, precoUnit);
-
-                    BigDecimal valorLinha = precoUnit
-                            .multiply(BigDecimal.valueOf(item.getValue()))
-                            .setScale(2, RoundingMode.HALF_EVEN);
-                    totalMercado = totalMercado.add(valorLinha);
-                }
-
-                if (!cotacaoCompleta) {
-                    continue;
-                }
-
-                BigDecimal frete = mercado.frete(loteImutavel);
-                if (frete == null || frete.compareTo(BigDecimal.ZERO) < 0) {
-                    continue;
-                }
-
-                totalMercado = totalMercado.add(frete.setScale(2, RoundingMode.HALF_EVEN));
-                cotacoesValidas.add(new Object[]{
-                        mercado,
-                        Collections.unmodifiableMap(precosFiltrados),
-                        totalMercado
-                });
-            } catch (MercadoIndisponivelException | RuntimeException e) {
-                // Desqualifica mercado que falhou; Error nao e capturado e propaga
-            }
-        }
-
-        if (cotacoesValidas.isEmpty()) {
-            throw new SemCotacaoValidaException("Nenhum mercado apresentou cotacao valida para o lote.");
-        }
-
-        // Ordena da menor para a maior cotacao (RN-05 + RN-06)
-        cotacoesValidas.sort((a, b) -> {
-            BigDecimal totalA = (BigDecimal) a[2];
-            BigDecimal totalB = (BigDecimal) b[2];
-            int cmpTotal = totalA.compareTo(totalB);
-            if (cmpTotal != 0) {
-                return cmpTotal;
-            }
-            return ((Mercado) a[0]).nome().compareTo(((Mercado) b[0]).nome());
-        });
-
-        // RN-08: percorre em ordem, para na 1a compra valida, nunca repete mercado
-        Mercado mercadoVencedor = null;
-        Map<String, BigDecimal> precosVencedor = null;
-        BigDecimal menorTotal = null;
-        String protocolo = null;
-
-        for (Object[] candidata : cotacoesValidas) {
-            Mercado mercado = (Mercado) candidata[0];
-            @SuppressWarnings("unchecked")
-            Map<String, BigDecimal> precosImutaveis = (Map<String, BigDecimal>) candidata[1];
-
-            try {
-                String resp = mercado.comprar(loteImutavel, precosImutaveis);
-                if (resp != null && !resp.isBlank()) {
-                    mercadoVencedor = mercado;
-                    precosVencedor = precosImutaveis;
-                    menorTotal = (BigDecimal) candidata[2];
-                    protocolo = resp;
-                    break;
+                String protocolo = mercado.comprar(loteImutavel, cotacao.precosUnitarios());
+                if (protocolo != null && !protocolo.isBlank()) {
+                    return new CompraConfirmada(cotacao, protocolo);
                 }
             } catch (MercadoIndisponivelException | RuntimeException e) {
-                // Falha na compra: tenta o proximo mercado da lista ordenada; Error propaga
+                // Falha na compra: tenta o próximo mercado; Error propaga (RN 8)
             }
         }
+        throw new CompraNaoRealizadaException("Nenhum mercado aceitou a compra do lote.");
+    }
 
-        if (protocolo == null) {
-            throw new CompraNaoRealizadaException("Nenhum mercado aceitou a compra do lote.");
-        }
+    private void gerarESalvarPedidosProvisorios(
+            ResultadoRodada r, CotacaoAvaliada vencedora, String protocolo) {
+        Map<String, BigDecimal> precosVencedor = vencedora.precosUnitarios();
+        BigDecimal freteLote = vencedora.freteArredondado();
 
-        ResultadoRodada r = new ResultadoRodada();
-        r.mercadoVencedor = mercadoVencedor.nome();
-        r.protocolo = protocolo;
-
-        BigDecimal freteLote = BigDecimal.ZERO;
-        try {
-            freteLote = mercadoVencedor.frete(loteImutavel);
-        } catch (Exception e) {
-        }
-
-        // Divide entre os compradores (sera substituido nas etapas 4.1 e 4.3)
         for (String c : listas.keySet()) {
             Map<String, Integer> l = listas.get(c);
             Pedido p = new Pedido();
             p.setId(protocolo + "-" + c);
             p.setCompradorId(c);
-            p.setMercado(mercadoVencedor.nome());
+            p.setMercado(vencedora.mercado().nome());
             p.setProtocolo(protocolo);
             p.setItens(l);
             double sub = 0;
@@ -169,9 +183,23 @@ public class SistemaCompras {
             r.pedidos.add(p);
             repo.salvar(p);
         }
-
-        r.totalLote = menorTotal;
-        listas.clear();
-        return r;
     }
+
+    private record CotacaoAvaliada(
+            Mercado mercado,
+            Map<String, BigDecimal> precosUnitarios,
+            BigDecimal freteArredondado,
+            BigDecimal total
+    ) implements Comparable<CotacaoAvaliada> {
+
+        @Override
+        public int compareTo(CotacaoAvaliada outra) {
+            int cmpTotal = this.total.compareTo(outra.total);
+            return (cmpTotal != 0)
+                    ? cmpTotal
+                    : this.mercado.nome().compareTo(outra.mercado.nome());
+        }
+    }
+
+    private record CompraConfirmada(CotacaoAvaliada cotacao, String protocolo) {}
 }
